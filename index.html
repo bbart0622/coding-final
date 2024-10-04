@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>코딩네컷</title>
+    <style>
+      @font-face {
+        font-family: "LeeSeoyun";
+        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202-2@1.0/LeeSeoyun.woff") format("woff");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      body {
+        font-family: "LeeSeoyun";
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        background-image: url("./background.png");
+      }
+
+      .container {
+        width: 390px;
+        background-color: #f873ff;
+        height: 100%;
+      }
+
+      .photos {
+        margin-top: 30px;
+      }
+
+      .photo-frame {
+        background-color: white;
+        margin: 15px 20px;
+        height: 200px;
+        position: relative;
+        cursor: pointer;
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .photo-img {
+        width: 100%;
+        height: auto; /* Height auto to maintain aspect ratio */
+        object-fit: cover; /* Cover to maintain aspect ratio */
+        border-radius: 10px;
+        position: absolute; /* Make it absolute to move freely */
+      }
+
+      .footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 20px;
+      }
+
+      .f-title {
+        font-size: 25px;
+        font-weight: 900;
+        color: white;
+      }
+
+      .f-date {
+        font-size: 15px;
+        font-weight: 500;
+        color: white;
+      }
+
+      .copyright {
+        font-size: 12px;
+        font-weight: 500;
+        color: white;
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      .photo-description {
+        color: white;
+        background-color: black;
+        width: fit-content;
+        padding: 0 20px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        position: absolute;
+        bottom: 0;
+        transform: translate(-50%);
+        left: 50%;
+        opacity: 0;
+      }
+
+      .showText {
+        opacity: 1;
+        transition: opacity 0.5s linear;
+      }
+
+      .hideText {
+        opacity: 0;
+      }
+
+      .photo-input {
+        display: none;
+      }
+
+      .download-btn {
+        background-color: #ff9b9b;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+
+      .download-btn:hover {
+        background-color: #ff6b6b;
+      }
+
+      .color-picker {
+        margin: 20px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .color-picker input[type="color"] {
+        width: 60px;
+        height: 40px;
+        border: none;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+
+      .color-picker button {
+        background-color: #ff9b9b;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .color-picker button:hover {
+        background-color: #ff6b6b;
+      }
+
+      .text-color-picker {
+        margin: 20px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .text-color-picker input[type="color"] {
+        width: 60px;
+        height: 40px;
+        border: none;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+
+      .text-color-picker button {
+        background-color: #ff9b9b;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .text-color-picker button:hover {
+        background-color: #ff6b6b;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+      let currentImage; // 현재 선택된 이미지
+      let selectedColor = "#f873ff"; // 기본 색상: 핑크
+      let selectedTextColor = "white"; // 기본 텍스트 색상: 흰색
+
+      function showText(number) {
+        document.querySelector(`#desc${number}`).classList.remove("hideText");
+        document.querySelector(`#desc${number}`).classList.add("showText");
+      }
+
+      function hideText(number) {
+        document.querySelector(`#desc${number}`).classList.remove("showText");
+        document.querySelector(`#desc${number}`).classList.add("hideText");
+      }
+
+      function loadImage(event, number) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const image = document.querySelector(`#image${number}`);
+          image.src = e.target.result;
+          currentImage = image; // 현재 선택된 이미지로 설정
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function openFileDialog(number) {
+        const fileInput = document.querySelector(`#file-input${number}`);
+        fileInput.click();
+      }
+
+      function handleKeyDown(event) {
+        if (currentImage) {
+          const step = 5; // 이동 거리 설정
+          switch (event.key) {
+            case "ArrowUp":
+              currentImage.style.top = (parseInt(currentImage.style.top || 0) - step) + "px";
+              break;
+            case "ArrowDown":
+              currentImage.style.top = (parseInt(currentImage.style.top || 0) + step) + "px";
+              break;
+            case "ArrowLeft":
+              currentImage.style.left = (parseInt(currentImage.style.left || 0) - step) + "px";
+              break;
+            case "ArrowRight":
+              currentImage.style.left = (parseInt(currentImage.style.left || 0) + step) + "px";
+              break;
+          }
+        }
+      }
+
+      function selectColor(event) {
+        selectedColor = event.target.value; // 사용자가 선택한 색상 저장
+      }
+
+      function applyColor() {
+        const container = document.querySelector(".container");
+        container.style.backgroundColor = selectedColor; // 전체 배경 색상 적용
+      }
+
+      function selectTextColor(event) {
+        selectedTextColor = event.target.value; // 사용자가 선택한 텍스트 색상 저장
+      }
+
+      function applyTextColor() {
+        const title = document.querySelector(".f-title");
+        const date = document.querySelector(".f-date");
+        const copyright = document.querySelector(".copyright");
+
+        // 선택된 색상으로 텍스트 색상 변경
+        title.style.color = selectedTextColor;
+        date.style.color = selectedTextColor;
+        copyright.style.color = selectedTextColor;
+      }
+
+      document.addEventListener("keydown", handleKeyDown); // 키 다운 이벤트 리스너 추가
+
+      function downloadImage() {
+        const container = document.querySelector(".container");
+        const downloadBtn = document.querySelector(".download-btn");
+        const colorPicker = document.querySelector(".color-picker");
+        const textColorPicker = document.querySelector(".text-color-picker");
+
+        // Hide buttons
+        colorPicker.style.display = "none"; // 색상 선택기 숨기기
+        textColorPicker.style.display = "none"; // 텍스트 색상 선택기 숨기기
+        downloadBtn.style.display = "none"; // 다운로드 버튼 숨기기
+
+        // Capture
+        html2canvas(container, { useCORS: true }).then((canvas) => {
+          const link = document.createElement("a");
+          link.download = "코딩네컷.png";
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+
+          // Show buttons again
+          colorPicker.style.display = "flex"; // 색상 선택기 보이기
+          textColorPicker.style.display = "flex"; // 텍스트 색상 선택기 보이기
+          downloadBtn.style.display = "block"; // 다운로드 버튼 보이기
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="color-picker">
+        <input type="color" id="color-picker" value="#f873ff" onchange="selectColor(event)" />
+        <button onclick="applyColor()">확인</button>
+      </div>
+      <div class="text-color-picker">
+        <input type="color" id="text-color-picker" value="white" onchange="selectTextColor(event)" />
+        <button onclick="applyTextColor()">확인</button>
+      </div>
+      <div class="photos">
+        <div class="photo-frame" onmouseover="showText(1)" onmouseout="hideText(1)" onclick="openFileDialog(1)">
+          <input type="file" id="file-input1" class="photo-input" accept="image/*" onchange="loadImage(event, 1)" />
+          <img id="image1" class="photo-img" alt="1" />
+          <span id="desc1" class="photo-description hideText">1</span>
+        </div>
+        <div class="photo-frame" onmouseover="showText(2)" onmouseout="hideText(2)" onclick="openFileDialog(2)">
+          <input type="file" id="file-input2" class="photo-input" accept="image/*" onchange="loadImage(event, 2)" />
+          <img id="image2" class="photo-img" alt="2" />
+          <span id="desc2" class="photo-description hideText">2</span>
+        </div>
+        <div class="photo-frame" onmouseover="showText(3)" onmouseout="hideText(3)" onclick="openFileDialog(3)">
+          <input type="file" id="file-input3" class="photo-input" accept="image/*" onchange="loadImage(event, 3)" />
+          <img id="image3" class="photo-img" alt="3" />
+          <span id="desc3" class="photo-description hideText">3</span>
+        </div>
+        <div class="photo-frame" onmouseover="showText(4)" onmouseout="hideText(4)" onclick="openFileDialog(4)">
+          <input type="file" id="file-input4" class="photo-input" accept="image/*" onchange="loadImage(event, 4)" />
+          <img id="image4" class="photo-img" alt="4" />
+          <span id="desc4" class="photo-description hideText">4</span>
+        </div>
+      </div>
+      <div class="footer">
+        <p class="f-title" contenteditable="true">컴 23 동기 MT!</p>
+        <p class="f-date" contenteditable="true">2024.08.19</p>
+        <p class="copyright">© 2024 한국교원대학교 컴퓨터교육과. All Rights Reserved.</p>
+        <button class="download-btn" onclick="downloadImage()">사진으로 다운로드</button>
+      </div>
+    </div>
+  </body>
+</html>
